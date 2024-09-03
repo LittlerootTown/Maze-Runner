@@ -9,13 +9,17 @@ public class FPSCharacterController : MonoBehaviour
     public float runSpeed = 6.0f;
     public float gravity = -9.81f;
     public float mouseSensitivity = 100f;
-    public Transform playerCamera;
+    public Transform playerCamera; // First-person camera
+    public Transform thirdPersonCamera; // Third-person camera
+    public float thirdPersonDistance = 4.0f; // Distance from player in third-person view
+    public float thirdPersonHeight = 1.5f; // Height of the third-person camera from player position
     public Transform flashlight;
     public Transform playerStartingPoint;
     private float xRotation = 0f;
+    private float yRotation = 0f; // Y rotation for third-person camera
+
     public List<AudioClip> footStepSounds = new List<AudioClip>();
     public List<AudioClip> footStepRunSounds = new List<AudioClip>();
-
     public AudioClip flashlightButtonClip;
     public float fallThreshold = 1.0f;
 
@@ -39,6 +43,8 @@ public class FPSCharacterController : MonoBehaviour
     public float walkStepInterval = 0.5f;  // Delay between walking footsteps
     public float runStepInterval = 0.3f;   // Delay between running footsteps
     private float stepTimer = 0f;
+
+    private bool isFirstPerson = true; // Flag to determine camera mode
 
     void Start()
     {
@@ -68,6 +74,10 @@ public class FPSCharacterController : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         originalCameraPosition = playerCamera.localPosition;
+
+        // Initialize cameras: enable first-person camera, disable third-person camera
+        playerCamera.gameObject.SetActive(true);
+        thirdPersonCamera.gameObject.SetActive(false);
     }
 
     void Update()
@@ -77,16 +87,12 @@ public class FPSCharacterController : MonoBehaviour
             ToggleFlashlight();
         }
 
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+        if (Input.GetKeyDown(KeyCode.F5))
+        {
+            ToggleCameraView();
+        }
 
-        xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
-
-        playerCamera.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
-        flashlight.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
-
-        transform.Rotate(Vector3.up * mouseX);
+        HandleMouseLook();
 
         isGrounded = characterController.isGrounded;
 
@@ -127,7 +133,10 @@ public class FPSCharacterController : MonoBehaviour
         if (characterController.velocity.magnitude > 0.1f && isGrounded)
         {
             bobTimer += Time.deltaTime * currentBobFrequency;
-            playerCamera.localPosition = originalCameraPosition + new Vector3(0, Mathf.Sin(bobTimer) * bobHeight, 0);
+            if (isFirstPerson)
+            {
+                playerCamera.localPosition = originalCameraPosition + new Vector3(0, Mathf.Sin(bobTimer) * bobHeight, 0);
+            }
         }
         else
         {
@@ -141,6 +150,34 @@ public class FPSCharacterController : MonoBehaviour
         animator.SetBool("isWalking", (inputMagnitude > 0.0f));
     }
 
+    void HandleMouseLook()
+    {
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+
+        xRotation -= mouseY;
+        xRotation = Mathf.Clamp(xRotation, -45f, 45f); // Clamp to prevent excessive looking up/down for third person
+
+        if (isFirstPerson)
+        {
+            // First-person camera rotation
+            playerCamera.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+            flashlight.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+        }
+        else
+        {
+            // Third-person camera rotation around the player
+            yRotation += mouseX;
+
+            Vector3 offset = new Vector3(0, thirdPersonHeight, -thirdPersonDistance); // Camera offset behind the player
+            Quaternion rotation = Quaternion.Euler(xRotation, yRotation, 0);
+            thirdPersonCamera.position = transform.position + rotation * offset; // Camera position behind and above the player
+            thirdPersonCamera.LookAt(transform.position + Vector3.up * thirdPersonHeight); // Look at the player's upper body
+        }
+
+        // Apply horizontal rotation to the player
+        transform.Rotate(Vector3.up * mouseX);
+    }
 
     void PlaySound(AudioSource audioSource, AudioClip clip)
     {
@@ -150,7 +187,6 @@ public class FPSCharacterController : MonoBehaviour
 
     void PlayFootsStepAudio(bool isRunning)
     {
-
         List<AudioClip> stepClips = isRunning ? footStepRunSounds : footStepSounds;
         int index = Random.Range(0, stepClips.Count);
         footStepAudioSource.clip = stepClips[index];
@@ -164,6 +200,21 @@ public class FPSCharacterController : MonoBehaviour
         PlaySound(flashlightAudioSource, flashlightButtonClip);
     }
 
+    void ToggleCameraView()
+    {
+        isFirstPerson = !isFirstPerson;
+        playerCamera.gameObject.SetActive(isFirstPerson);
+        thirdPersonCamera.gameObject.SetActive(!isFirstPerson);
+
+        if (!isFirstPerson)
+        {
+            // Reset third-person camera position and rotation when toggling
+            yRotation = transform.eulerAngles.y;
+            thirdPersonCamera.position = transform.position - transform.forward * thirdPersonDistance + Vector3.up * thirdPersonHeight;
+            thirdPersonCamera.LookAt(transform.position + Vector3.up * thirdPersonHeight);
+        }
+    }
+
     public void TeleportToSpawn()
     {
         characterController.enabled = false; // Disable to teleport without physics constraints
@@ -171,6 +222,4 @@ public class FPSCharacterController : MonoBehaviour
         transform.rotation = playerStartingPoint.rotation;
         characterController.enabled = true; // Re-enable to resume normal physics
     }
-
-
 }
