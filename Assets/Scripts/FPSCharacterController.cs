@@ -8,6 +8,7 @@ public class FPSCharacterController : MonoBehaviour
     public float walkSpeed = 3.0f;
     public float runSpeed = 6.0f;
     public float gravity = -9.81f;
+    public float jumpHeight = 2.0f; // Height of the jump
     public float mouseSensitivity = 100f;
     public Transform playerCamera; // First-person camera
     public Transform thirdPersonCamera; // Third-person camera
@@ -21,6 +22,7 @@ public class FPSCharacterController : MonoBehaviour
     public List<AudioClip> footStepSounds = new List<AudioClip>();
     public List<AudioClip> footStepRunSounds = new List<AudioClip>();
     public AudioClip flashlightButtonClip;
+    public AudioClip jumpSoundClip; // Sound for jumping
     public float fallThreshold = 1.0f;
 
     private CharacterController characterController;
@@ -103,7 +105,12 @@ public class FPSCharacterController : MonoBehaviour
 
         if (isGrounded && velocity.y < 0)
         {
-            velocity.y = -2f;
+            velocity.y = -2f; // Reset the downward velocity when grounded
+        }
+
+        if (isGrounded && Input.GetButtonDown("Jump"))
+        {
+            Jump();
         }
 
         bool isRunning = Input.GetKey(KeyCode.LeftShift);
@@ -191,6 +198,18 @@ public class FPSCharacterController : MonoBehaviour
         int index = Random.Range(0, stepClips.Count);
         footStepAudioSource.clip = stepClips[index];
         footStepAudioSource.PlayOneShot(footStepAudioSource.clip);
+    }
+
+    void Jump()
+    {
+        // Calculate the upward velocity required for the desired jump height
+        velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+
+        // Play jump sound (if available)
+        if (jumpSoundClip != null)
+        {
+            footStepAudioSource.PlayOneShot(jumpSoundClip);
+        }
     }
 
     void ToggleFlashlight()
