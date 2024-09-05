@@ -103,6 +103,14 @@ public class FPSCharacterController : MonoBehaviour
             lastGroundedPosition = transform.position;
         }
 
+        // Handle landing
+        if (isGrounded && !wasGrounded)
+        {
+            animator.SetBool("isJumping", false); // Reset jump animation when grounded
+        }
+
+        wasGrounded = isGrounded; // Track if the player was grounded last frame
+
         if (isGrounded && velocity.y < 0)
         {
             velocity.y = -2f; // Reset the downward velocity when grounded
@@ -124,7 +132,8 @@ public class FPSCharacterController : MonoBehaviour
         Vector3 move = transform.right * moveX + transform.forward * moveZ;
         characterController.Move(move * currentSpeed * Time.deltaTime);
 
-        if (move.magnitude > 0.1f)
+        // Only play footstep sounds when grounded and moving
+        if (move.magnitude > 0.1f && isGrounded)
         {
             stepTimer -= Time.deltaTime;
             if (stepTimer <= 0f)
@@ -194,6 +203,8 @@ public class FPSCharacterController : MonoBehaviour
 
     void PlayFootsStepAudio(bool isRunning)
     {
+        if (!isGrounded) return; // Don't play footstep sounds if the player is not grounded
+
         List<AudioClip> stepClips = isRunning ? footStepRunSounds : footStepSounds;
         int index = Random.Range(0, stepClips.Count);
         footStepAudioSource.clip = stepClips[index];
@@ -210,6 +221,9 @@ public class FPSCharacterController : MonoBehaviour
         {
             footStepAudioSource.PlayOneShot(jumpSoundClip);
         }
+
+        // Trigger jump animation
+        animator.SetBool("isJumping", true);
     }
 
     void ToggleFlashlight()
@@ -222,17 +236,33 @@ public class FPSCharacterController : MonoBehaviour
     void ToggleCameraView()
     {
         isFirstPerson = !isFirstPerson;
+
+        // Enable/Disable cameras
         playerCamera.gameObject.SetActive(isFirstPerson);
         thirdPersonCamera.gameObject.SetActive(!isFirstPerson);
 
-        if (!isFirstPerson)
+        // Get AudioListener components from both cameras
+        AudioListener playerCameraAudioListener = playerCamera.GetComponent<AudioListener>();
+        AudioListener thirdPersonCameraAudioListener = thirdPersonCamera.GetComponent<AudioListener>();
+
+        // Enable/Disable AudioListeners based on active camera
+        if (isFirstPerson)
         {
-            // Reset third-person camera position and rotation when toggling
+            if (playerCameraAudioListener != null) playerCameraAudioListener.enabled = true;
+            if (thirdPersonCameraAudioListener != null) thirdPersonCameraAudioListener.enabled = false;
+        }
+        else
+        {
+            if (playerCameraAudioListener != null) playerCameraAudioListener.enabled = false;
+            if (thirdPersonCameraAudioListener != null) thirdPersonCameraAudioListener.enabled = true;
+
+            // Reset third-person camera position and rotation
             yRotation = transform.eulerAngles.y;
             thirdPersonCamera.position = transform.position - transform.forward * thirdPersonDistance + Vector3.up * thirdPersonHeight;
             thirdPersonCamera.LookAt(transform.position + Vector3.up * thirdPersonHeight);
         }
     }
+
 
     public void TeleportToSpawn()
     {
