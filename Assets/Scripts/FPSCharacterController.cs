@@ -263,7 +263,6 @@ public class FPSCharacterController : MonoBehaviour
         }
     }
 
-
     public void TeleportToSpawn()
     {
         characterController.enabled = false; // Disable to teleport without physics constraints

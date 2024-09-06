@@ -5,13 +5,16 @@ using UnityEngine.AI;
 public class RandomMovement : MonoBehaviour
 {
     public NavMeshAgent agent;
-    public float range; // radius of sphere
-    public Transform centrePoint; // centre of the area the agent wants to move around in
+    public float range; // radius of sphere for patrol area
+    public Transform centrePoint; // center point of patrol area
     public Transform player; // reference to the player
-    public float detectionRadius = 15f; // radius within which the enemy can detect the player
+    public float detectionRadius = 15f; // maximum detection distance
     public float chaseSpeed = 5f; // speed while chasing
     public float patrolSpeed = 3.5f; // speed while patrolling
-        
+    public float raycastInterval = 0.1f; // interval for performing raycast detection
+    public float fieldOfViewAngle = 60f; // angle of field of view for detection
+    public LayerMask playerLayer; // Layer mask for detecting player
+
     private Animator animator;
     private bool isChasing = false;
     private AudioSource audioSource;
@@ -32,11 +35,8 @@ public class RandomMovement : MonoBehaviour
         }
         agent.speed = patrolSpeed;
 
-        // Add a SphereCollider for detection
-        SphereCollider detectionCollider = gameObject.AddComponent<SphereCollider>();
-        detectionCollider.isTrigger = true;
-        detectionCollider.radius = detectionRadius;
-
+        // Start raycasting for player detection
+        StartCoroutine(DetectPlayerWithRaycast());
         StartCoroutine(PlayFootsteps());
     }
 
@@ -87,34 +87,72 @@ public class RandomMovement : MonoBehaviour
         return false;
     }
 
-    public void TeleportEnemy()
+    IEnumerator DetectPlayerWithRaycast()
     {
-        transform.position = centrePoint.position;
-        transform.rotation = centrePoint.rotation;
-        Debug.Log("Enemy Teleported to Starting Point!");
-
-        // Stop chasing the player after teleporting
-        isChasing = false;
-        agent.speed = patrolSpeed;
-    }
-
-    void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("Player"))
+        while (true)
         {
-            isChasing = true;
-            agent.speed = chaseSpeed;
+            Vector3 directionToPlayer = player.position - transform.position;
+            float distanceToPlayer = directionToPlayer.magnitude;
+
+            if (distanceToPlayer <= detectionRadius)
+            {
+                float angle = Vector3.Angle(transform.forward, directionToPlayer);
+
+                if (angle <= fieldOfViewAngle / 2)
+                {
+                    // Perform raycasts in multiple directions (center, left, right)
+                    Vector3[] rayDirections = {
+                    directionToPlayer.normalized, // center
+                    Quaternion.Euler(0, -15, 0) * directionToPlayer.normalized, // left
+                    Quaternion.Euler(0, 15, 0) * directionToPlayer.normalized // right
+                };
+
+                    bool playerDetected = false;
+                    foreach (Vector3 dir in rayDirections)
+                    {
+                        Ray ray = new Ray(transform.position + Vector3.up * 1.0f, dir);
+                        RaycastHit hit;
+                        Debug.DrawRay(ray.origin, ray.direction * detectionRadius, Color.red);
+
+                        if (Physics.Raycast(ray, out hit, detectionRadius, playerLayer) && hit.transform.CompareTag("Player"))
+                        {
+                            playerDetected = true;
+                            break;
+                        }
+                    }
+
+                    if (playerDetected)
+                    {
+                        isChasing = true;
+                        agent.speed = chaseSpeed;
+                        Debug.Log("Raycast hit the player");
+                    }
+                    else
+                    {
+                        isChasing = false;
+                        agent.speed = patrolSpeed;
+                        Debug.Log("Raycast did not hit the player");
+                    }
+                }
+                else
+                {
+                    isChasing = false;
+                    agent.speed = patrolSpeed;
+                }
+            }
+            else
+            {
+                isChasing = false;
+                agent.speed = patrolSpeed;
+            }
+
+            yield return new WaitForSeconds(raycastInterval);
         }
     }
 
-    void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            isChasing = false;
-            agent.speed = patrolSpeed;
-        }
-    }
+
+
+
 
     IEnumerator PlayFootsteps()
     {
@@ -164,5 +202,16 @@ public class RandomMovement : MonoBehaviour
         {
             Debug.LogError("Selected footstep clip is null!");
         }
+    }
+
+    public void TeleportEnemy()
+    {
+        transform.position = centrePoint.position;
+        transform.rotation = centrePoint.rotation;
+        Debug.Log("Enemy Teleported to Starting Point!");
+
+        // Stop chasing the player after teleporting
+        isChasing = false;
+        agent.speed = patrolSpeed;
     }
 }
