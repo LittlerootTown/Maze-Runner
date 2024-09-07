@@ -1,37 +1,37 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class PickUpCoin : MonoBehaviour
 {
-    public AudioClip coinPickupSound;  // Assign your coin pickup sound in the Inspector
-    private AudioSource audioSource;
-
-    private void Start()
-    {
-        // Get or add the AudioSource component on the coin object
-        audioSource = gameObject.AddComponent<AudioSource>();
-        audioSource.playOnAwake = false;
-        audioSource.clip = coinPickupSound;
-    }
+    public AudioSource pickSnd;
+    public static int coinCount;
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player")) // Only Player can pick coins
         {
-            // Play the pickup sound
-            if (audioSource != null && coinPickupSound != null)
+            // Play the coin pickup sound
+            if (pickSnd != null)
             {
-                audioSource.Play();
+                pickSnd.Play();
             }
 
-            // Disable the coin after picking it up, but allow sound to finish
-            StartCoroutine(DisableCoinAfterSound());
+            coinCount++;
+            this.gameObject.SetActive(false); // Turn THIS off
         }
     }
 
-    private IEnumerator DisableCoinAfterSound()
+    // Start is called before the first frame update
+    void Start()
     {
-        // Wait for the sound to finish before disabling the object
-        yield return new WaitForSeconds(audioSource.clip.length);
-        gameObject.SetActive(false);
+        coinCount = 0;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+
     }
 }
