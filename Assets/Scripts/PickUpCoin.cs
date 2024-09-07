@@ -7,19 +7,17 @@ public class PickUpCoin : MonoBehaviour
 {
     public AudioSource pickSnd;
     public static int coinCount;
+    public TMP_Text textCoin;
+    public int totalCoins = 10; // Total number of coins in the game
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player")) // Only Player can pick coins
+        if (other.tag == "Player") // Only Player can pick coins
         {
-            // Play the coin pickup sound
-            if (pickSnd != null)
-            {
-                pickSnd.Play();
-            }
-
             coinCount++;
+            pickSnd.Play();
             this.gameObject.SetActive(false); // Turn THIS off
+            UpdateCoinText();
         }
     }
 
@@ -27,6 +25,13 @@ public class PickUpCoin : MonoBehaviour
     void Start()
     {
         coinCount = 0;
+        UpdateCoinText();
+    }
+
+    // Update the coin text in the desired format
+    void UpdateCoinText()
+    {
+        textCoin.text = "Coins: " + coinCount + "/" + totalCoins;
     }
 
     // Update is called once per frame
@@ -35,3 +40,4 @@ public class PickUpCoin : MonoBehaviour
 
     }
 }
+
