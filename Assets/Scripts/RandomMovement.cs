@@ -190,7 +190,7 @@ public class RandomMovement : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning("No walking footstep clips assigned!");
+                Debug.LogWarning("No walking footstep clips assigned!");    
             }
         }
 
