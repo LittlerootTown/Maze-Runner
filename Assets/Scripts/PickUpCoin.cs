@@ -6,15 +6,15 @@ using TMPro;
 public class PickUpCoin : MonoBehaviour
 {
     public AudioSource pickSnd;
-    public static int coinCount;
+    public static int score;
     public TMP_Text textCoin;
-    public int totalCoins = 10; // Total number of coins in the game
+   
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.tag == "Player") // Only Player can pick coins
         {
-            coinCount++;
+            score+=100;
             pickSnd.Play();
             this.gameObject.SetActive(false); // Turn THIS off
             UpdateCoinText();
@@ -24,14 +24,14 @@ public class PickUpCoin : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        coinCount = 0;
+        score = 0;
         UpdateCoinText();
     }
 
     // Update the coin text in the desired format
     void UpdateCoinText()
     {
-        textCoin.text = "Coins: " + coinCount + "/" + totalCoins;
+        textCoin.text = "Score: " + score;
     }
 
     // Update is called once per frame
