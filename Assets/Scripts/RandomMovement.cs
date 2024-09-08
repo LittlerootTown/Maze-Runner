@@ -12,13 +12,16 @@ public class RandomMovement : MonoBehaviour
     public float chaseSpeed = 5f; // speed while chasing
     public float patrolSpeed = 3.5f; // speed while patrolling
     public float raycastInterval = 0.1f; // interval for performing raycast detection
-    public float fieldOfViewAngle = 60f; // angle of field of view for detection
+    public float fieldOfViewAngle = 90f; // increased FOV angle for detection
+    public float peripheralRadius = 5f; // radius for peripheral detection
+    public float losePlayerDelay = 2f; // delay before stopping chase after losing sight
     public LayerMask playerLayer; // Layer mask for detecting player
     public LayerMask obstacleLayer; // Layer mask for obstacles
 
     private Animator animator;
     private bool isChasing = false;
     private AudioSource audioSource;
+    private Coroutine stopChasingCoroutine;
 
     public AudioClip[] walkingFootstepClips; // array for walking footstep clips
     public AudioClip[] runningFootstepClips; // array for running footstep clips
@@ -95,64 +98,84 @@ public class RandomMovement : MonoBehaviour
             Vector3 directionToPlayer = player.position - transform.position;
             float distanceToPlayer = directionToPlayer.magnitude;
 
+            // Check if the player is within detection range
             if (distanceToPlayer <= detectionRadius)
             {
                 float angle = Vector3.Angle(transform.forward, directionToPlayer);
 
                 if (angle <= fieldOfViewAngle / 2)
                 {
-                    // Perform raycasts in multiple directions (center, left, right)
-                    Vector3[] rayDirections = {
-                        directionToPlayer.normalized, // center
-                        Quaternion.Euler(0, -15, 0) * directionToPlayer.normalized, // left
-                        Quaternion.Euler(0, 15, 0) * directionToPlayer.normalized // right
-                    };
-
-                    bool playerDetected = false;
-                    foreach (Vector3 dir in rayDirections)
-                    {
-                        Ray ray = new Ray(transform.position + Vector3.up * 1.0f, dir);
-                        RaycastHit hit;
-                        Debug.DrawRay(ray.origin, ray.direction * detectionRadius, Color.red);
-
-                        if (Physics.Raycast(ray, out hit, detectionRadius, playerLayer) && hit.transform.CompareTag("Player"))
-                        {
-                            // Check if the raycast hit any obstacles
-                            if (!Physics.Raycast(ray.origin, ray.direction, hit.distance, obstacleLayer))
-                            {
-                                playerDetected = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (playerDetected)
-                    {
-                        isChasing = true;
-                        agent.speed = chaseSpeed;
-                        Debug.Log("Raycast hit the player");
-                    }
-                    else
-                    {
-                        isChasing = false;
-                        agent.speed = patrolSpeed;
-                        Debug.Log("Raycast did not hit the player");
-                    }
+                    // Main FOV detection
+                    PerformRaycast(directionToPlayer);
+                }
+                else if (distanceToPlayer <= peripheralRadius)
+                {
+                    // Player is outside FOV but close enough (peripheral detection)
+                    Debug.Log("Player detected in peripheral range.");
+                    isChasing = true;
+                    agent.speed = chaseSpeed;
                 }
                 else
                 {
-                    isChasing = false;
-                    agent.speed = patrolSpeed;
+                    // Player is not within FOV or peripheral detection
+                    if (stopChasingCoroutine == null)
+                    {
+                        stopChasingCoroutine = StartCoroutine(StopChasingAfterDelay());
+                    }
                 }
             }
             else
             {
-                isChasing = false;
-                agent.speed = patrolSpeed;
+                // Player is out of detection radius
+                if (stopChasingCoroutine == null)
+                {
+                    stopChasingCoroutine = StartCoroutine(StopChasingAfterDelay());
+                }
             }
 
             yield return new WaitForSeconds(raycastInterval);
         }
+    }
+
+    void PerformRaycast(Vector3 directionToPlayer)
+    {
+        Ray ray = new Ray(transform.position + Vector3.up * 1.0f, directionToPlayer.normalized);
+        RaycastHit hit;
+        Debug.DrawRay(ray.origin, ray.direction * detectionRadius, Color.red);
+
+        if (Physics.Raycast(ray, out hit, detectionRadius, playerLayer) && hit.transform.CompareTag("Player"))
+        {
+            // Check for obstacles
+            if (!Physics.Raycast(ray.origin, ray.direction, hit.distance, obstacleLayer))
+            {
+                isChasing = true;
+                agent.speed = chaseSpeed;
+
+                if (stopChasingCoroutine != null)
+                {
+                    StopCoroutine(stopChasingCoroutine);
+                    stopChasingCoroutine = null;
+                }
+
+                Debug.Log("Raycast hit the player");
+            }
+            else if (stopChasingCoroutine == null)
+            {
+                stopChasingCoroutine = StartCoroutine(StopChasingAfterDelay());
+            }
+        }
+        else if (stopChasingCoroutine == null)
+        {
+            stopChasingCoroutine = StartCoroutine(StopChasingAfterDelay());
+        }
+    }
+
+    IEnumerator StopChasingAfterDelay()
+    {
+        yield return new WaitForSeconds(losePlayerDelay);
+        isChasing = false;
+        agent.speed = patrolSpeed;
+        stopChasingCoroutine = null;
     }
 
     IEnumerator PlayFootsteps()

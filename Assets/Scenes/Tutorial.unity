@@ -5638,6 +5638,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5280471091138660866, guid: f6837f6101c0344449e393e4e35d5f99, type: 3}
+      propertyPath: jumpSoundClip
+      value: 
+      objectReference: {fileID: 8300000, guid: 41cfd94f84e639b46a8adff0a6f61983, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -5713,22 +5717,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 3204060204606023655, guid: 9c573f74b4ea9db4c9cbb887027b533b, type: 3}
-      propertyPath: m_Radius
-      value: 0.37
-      objectReference: {fileID: 0}
-    - target: {fileID: 3204060204606023655, guid: 9c573f74b4ea9db4c9cbb887027b533b, type: 3}
-      propertyPath: m_IsTrigger
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5275352767921547175, guid: 9c573f74b4ea9db4c9cbb887027b533b, type: 3}
-      propertyPath: playerSpawn
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 5521675599231425630, guid: 9c573f74b4ea9db4c9cbb887027b533b, type: 3}
-      propertyPath: m_IsTrigger
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 6474839691924607614, guid: 9c573f74b4ea9db4c9cbb887027b533b, type: 3}
       propertyPath: m_Name
       value: Enemy
@@ -5781,10 +5769,6 @@ PrefabInstance:
       propertyPath: centrePoint
       value: 
       objectReference: {fileID: 989374935}
-    - target: {fileID: 8254259056815584161, guid: 9c573f74b4ea9db4c9cbb887027b533b, type: 3}
-      propertyPath: obstacleLayer.m_Bits
-      value: 64
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

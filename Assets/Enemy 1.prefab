@@ -127,17 +127,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   agent: {fileID: 8951097465722443171}
-  range: 20
+  range: 30
   centrePoint: {fileID: 0}
   player: {fileID: 0}
   detectionRadius: 30
   chaseSpeed: 5
   patrolSpeed: 3.5
   raycastInterval: 0.1
-  fieldOfViewAngle: 120
+  fieldOfViewAngle: 160
   playerLayer:
     serializedVersion: 2
     m_Bits: 8
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 64
   walkingFootstepClips:
   - {fileID: 8300000, guid: 47832b56ccba5bc408b1d5aac1871746, type: 3}
   - {fileID: 8300000, guid: 3d132da7af60f1145a3deb6a8bc42a08, type: 3}
@@ -165,11 +168,11 @@ CapsuleCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.5
+  m_Radius: 0.37
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
@@ -492,8 +495,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4202228e45a6f744b9418ff3f1a5b09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deathClip: {fileID: 8300000, guid: 02e19511c9e114c4a835ea17a4b94352, type: 3}
-  playerSpawn: {fileID: 0}
 --- !u!1001 &1154802060384630666
 PrefabInstance:
   m_ObjectHideFlags: 0
