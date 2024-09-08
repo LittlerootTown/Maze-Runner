@@ -55,4 +55,14 @@ public class ScoreManager : MonoBehaviour
     {
         return score;
     }
+
+    public void ResetScore()
+    {
+        score = 0;
+    }
+
+    public void DestroyInstance()
+    {
+        Destroy(gameObject);
+    }
 }

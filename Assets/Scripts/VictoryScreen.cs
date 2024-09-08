@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class VictoryScreen : MonoBehaviour
 {
@@ -19,4 +20,15 @@ public class VictoryScreen : MonoBehaviour
         Cursor.visible = true;
     }
 
+    public void RestartGame()
+    {
+        // Reset the score
+        ScoreManager.instance.ResetScore();
+
+        // Destroy the existing ScoreManager instance
+        ScoreManager.instance.DestroyInstance();
+
+        // Load the new game scene or restart the current scene
+        SceneManager.LoadScene("MainMenu");
+    }
 }
