@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class PickUpCoin : MonoBehaviour
 {
+    public AudioSource pickSnd;
+    
     public int coinValue = 100; // The value of each coin
 
     private void OnTriggerEnter(Collider other)
@@ -19,7 +21,7 @@ public class PickUpCoin : MonoBehaviour
                 Debug.LogWarning("ScoreManager instance not found!");
             }
 
-            // Optionally, play a sound or visual effect here
+            pickSnd.Play();
 
             // Destroy the coin after it's picked up
             Destroy(gameObject);
