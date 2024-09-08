@@ -270,4 +270,6 @@ public class FPSCharacterController : MonoBehaviour
         transform.rotation = playerStartingPoint.rotation;
         characterController.enabled = true; // Re-enable to resume normal physics
     }
+
+
 }

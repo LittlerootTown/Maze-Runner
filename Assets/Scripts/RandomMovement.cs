@@ -14,6 +14,7 @@ public class RandomMovement : MonoBehaviour
     public float raycastInterval = 0.1f; // interval for performing raycast detection
     public float fieldOfViewAngle = 60f; // angle of field of view for detection
     public LayerMask playerLayer; // Layer mask for detecting player
+    public LayerMask obstacleLayer; // Layer mask for obstacles
 
     private Animator animator;
     private bool isChasing = false;
@@ -102,10 +103,10 @@ public class RandomMovement : MonoBehaviour
                 {
                     // Perform raycasts in multiple directions (center, left, right)
                     Vector3[] rayDirections = {
-                    directionToPlayer.normalized, // center
-                    Quaternion.Euler(0, -15, 0) * directionToPlayer.normalized, // left
-                    Quaternion.Euler(0, 15, 0) * directionToPlayer.normalized // right
-                };
+                        directionToPlayer.normalized, // center
+                        Quaternion.Euler(0, -15, 0) * directionToPlayer.normalized, // left
+                        Quaternion.Euler(0, 15, 0) * directionToPlayer.normalized // right
+                    };
 
                     bool playerDetected = false;
                     foreach (Vector3 dir in rayDirections)
@@ -116,8 +117,12 @@ public class RandomMovement : MonoBehaviour
 
                         if (Physics.Raycast(ray, out hit, detectionRadius, playerLayer) && hit.transform.CompareTag("Player"))
                         {
-                            playerDetected = true;
-                            break;
+                            // Check if the raycast hit any obstacles
+                            if (!Physics.Raycast(ray.origin, ray.direction, hit.distance, obstacleLayer))
+                            {
+                                playerDetected = true;
+                                break;
+                            }
                         }
                     }
 
@@ -149,10 +154,6 @@ public class RandomMovement : MonoBehaviour
             yield return new WaitForSeconds(raycastInterval);
         }
     }
-
-
-
-
 
     IEnumerator PlayFootsteps()
     {
@@ -190,7 +191,7 @@ public class RandomMovement : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning("No walking footstep clips assigned!");    
+                Debug.LogWarning("No walking footstep clips assigned!");
             }
         }
 
@@ -206,12 +207,19 @@ public class RandomMovement : MonoBehaviour
 
     public void TeleportEnemy()
     {
-        transform.position = centrePoint.position;
-        transform.rotation = centrePoint.rotation;
-        Debug.Log("Enemy Teleported to Starting Point!");
+        if (centrePoint != null)
+        {
+            transform.position = centrePoint.position;
+            transform.rotation = centrePoint.rotation;
+            Debug.Log("Enemy Teleported to Centre Point!");
 
-        // Stop chasing the player after teleporting
-        isChasing = false;
-        agent.speed = patrolSpeed;
+            // Stop chasing the player after teleporting
+            isChasing = false;
+            agent.speed = patrolSpeed;
+        }
+        else
+        {
+            Debug.LogError("Centre Point is not assigned!");
+        }
     }
 }

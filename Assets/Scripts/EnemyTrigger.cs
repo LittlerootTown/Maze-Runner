@@ -2,21 +2,11 @@ using UnityEngine;
 
 public class EnemyTrigger : MonoBehaviour
 {
-    public AudioClip deathClip;
-    private AudioSource audioSource;
     private RandomMovement enemy;
     private PlayerCheckpoint playerCheckpoint;  // Reference to PlayerCheckpoint
 
     void Start()
     {
-        audioSource = gameObject.AddComponent<AudioSource>();
-        if (audioSource == null)
-        {
-            Debug.LogError("No AudioSource component found on this GameObject.");
-        }
-
-        audioSource.clip = deathClip;
-
         enemy = GetComponentInParent<RandomMovement>();
         if (enemy == null)
         {
@@ -45,15 +35,6 @@ public class EnemyTrigger : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             Debug.Log("Player detected in trigger.");
-
-            if (audioSource != null && deathClip != null)
-            {
-                audioSource.Play();
-            }
-            else
-            {
-                Debug.LogError("AudioSource or deathClip is not assigned.");
-            }
 
             if (playerCheckpoint != null)
             {
