@@ -1,41 +1,28 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 
 public class PickUpCoin : MonoBehaviour
 {
-    public AudioSource pickSnd;
-    public static int score;
-    public TMP_Text textCoin;
+    public int coinValue = 100; // The value of each coin
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player")) // Only Player can pick coins
+        if (other.CompareTag("Player")) // Assuming player has the "Player" tag
         {
-            score += 100;
-            pickSnd.Play();
-            this.gameObject.SetActive(false); // Turn THIS off
-            UpdateCoinText();
+            // Check if ScoreManager instance is not null
+            if (ScoreManager.instance != null)
+            {
+                // Add coin value to the score using ScoreManager
+                ScoreManager.instance.AddScore(coinValue);
+            }
+            else
+            {
+                Debug.LogWarning("ScoreManager instance not found!");
+            }
+
+            // Optionally, play a sound or visual effect here
+
+            // Destroy the coin after it's picked up
+            Destroy(gameObject);
         }
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        score = 0;
-        UpdateCoinText();
-    }
-
-    // Update the coin text in the desired format
-    public void UpdateCoinText()
-    {
-        textCoin.text = "Score: " + score;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 }
