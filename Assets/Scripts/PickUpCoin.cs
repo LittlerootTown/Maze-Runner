@@ -8,13 +8,12 @@ public class PickUpCoin : MonoBehaviour
     public AudioSource pickSnd;
     public static int score;
     public TMP_Text textCoin;
-   
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.tag == "Player") // Only Player can pick coins
+        if (other.CompareTag("Player")) // Only Player can pick coins
         {
-            score+=100;
+            score += 100;
             pickSnd.Play();
             this.gameObject.SetActive(false); // Turn THIS off
             UpdateCoinText();
@@ -29,7 +28,7 @@ public class PickUpCoin : MonoBehaviour
     }
 
     // Update the coin text in the desired format
-    void UpdateCoinText()
+    public void UpdateCoinText()
     {
         textCoin.text = "Score: " + score;
     }
@@ -40,4 +39,3 @@ public class PickUpCoin : MonoBehaviour
 
     }
 }
-

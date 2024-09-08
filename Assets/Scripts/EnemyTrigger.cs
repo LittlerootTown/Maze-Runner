@@ -1,16 +1,14 @@
 using UnityEngine;
 
 public class EnemyTrigger : MonoBehaviour
-{   
+{
     public AudioClip deathClip;
-    public Transform playerSpawn;
     private AudioSource audioSource;
     private RandomMovement enemy;
-    private FPSCharacterController playerController;
+    private PlayerCheckpoint playerCheckpoint;  // Reference to PlayerCheckpoint
 
     void Start()
     {
-
         audioSource = gameObject.AddComponent<AudioSource>();
         if (audioSource == null)
         {
@@ -28,20 +26,15 @@ public class EnemyTrigger : MonoBehaviour
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {
-            playerController = player.GetComponent<FPSCharacterController>();
-            if (playerController == null)
+            playerCheckpoint = player.GetComponent<PlayerCheckpoint>();
+            if (playerCheckpoint == null)
             {
-                Debug.LogError("No FPSCharacterController script found on the Player GameObject.");
+                Debug.LogError("No PlayerCheckpoint script found on the Player GameObject.");
             }
         }
         else
         {
             Debug.LogError("Player GameObject not found.");
-        }
-
-        if (playerSpawn == null)
-        {
-            Debug.LogError("PlayerSpawn transform not assigned.");
         }
     }
 
@@ -62,18 +55,19 @@ public class EnemyTrigger : MonoBehaviour
                 Debug.LogError("AudioSource or deathClip is not assigned.");
             }
 
-            if (playerController != null && playerSpawn != null)
+            if (playerCheckpoint != null)
             {
-                playerController.TeleportToSpawn();
+                // Respawn player at the last checkpoint
+                playerCheckpoint.Respawn();
             }
             else
             {
-                Debug.LogError("PlayerController or PlayerSpawn transform is not assigned.");
+                Debug.LogError("PlayerCheckpoint script is not assigned.");
             }
 
             if (enemy != null)
             {
-                enemy.TeleportEnemy();
+                enemy.TeleportEnemy();  // Teleport enemy back to its spawn point
             }
             else
             {
