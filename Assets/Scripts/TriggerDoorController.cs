@@ -1,75 +1,31 @@
-using System.Collections;
 using UnityEngine;
 
-public class TriggerDoorController : MonoBehaviour
+public class PushDoorController : MonoBehaviour
 {
-    public Animator myDoor;
-    public AudioClip doorOpenClip;
-    public AudioClip doorCloseClip;
-    private AudioSource audioSource;
-    bool doorOpen;
+    private Rigidbody doorRigidbody;
+    public float pushForce = 5f;  // Adjust this to set how hard the door opens
 
-
-
-    [Range(0, 10)] public float doorOpenDelay = 0.0f;
-    [Range(0, 10)] public float doorCloseDelay = 1.1f;
-
-    void Start()
+    private void Start()
     {
-        doorOpen = false;
-        audioSource = GetComponent<AudioSource>();
-        if (audioSource == null)
-        {
-            audioSource = gameObject.AddComponent<AudioSource>();
-        }
+        // Get the Rigidbody attached to the door
+        doorRigidbody = GetComponent<Rigidbody>();
 
-        // Load default clips if they are not assigned
-        if (doorOpenClip == null)
+        if (doorRigidbody == null)
         {
-            doorOpenClip = Resources.Load<AudioClip>("doorOpenClip");
-        }
-        if (doorCloseClip == null)
-        {
-            doorCloseClip = Resources.Load<AudioClip>("doorCloseClip");
+            Debug.LogError("No Rigidbody component found on the door.");
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnCollisionEnter(Collision collision)
     {
-        if (other.gameObject.CompareTag("Player"))
+        if (collision.gameObject.CompareTag("Player"))
         {
-            doorOpen = true;
-            doorControl("Open");
-            StartCoroutine(PlaySoundWithDelay(doorOpenClip, doorOpenDelay));
+            // Calculate direction of the push
+            Vector3 pushDirection = collision.contacts[0].point - transform.position;
+            pushDirection = -pushDirection.normalized;
+
+            // Apply force to the door in the direction the player is pushing
+            doorRigidbody.AddForce(pushDirection * pushForce, ForceMode.Impulse);
         }
     }
-
-    private void doorControl(string state)
-    {
-        myDoor.SetTrigger(state);
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if (doorOpen)
-        {
-            doorControl("Close");
-            StartCoroutine(PlaySoundWithDelay(doorCloseClip, doorCloseDelay));
-            doorOpen = false;
-        }
-    }
-
-    void PlaySound(AudioClip clip)
-    {
-        audioSource.clip = clip;
-        audioSource.Play();
-    }
-
-    IEnumerator PlaySoundWithDelay(AudioClip clip, float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        PlaySound(clip);
-    }
-
-
 }
