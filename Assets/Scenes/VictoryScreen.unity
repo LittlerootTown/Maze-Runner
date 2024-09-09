@@ -468,9 +468,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1207733879}
-        m_TargetAssemblyTypeName: VictoryScreen, Assembly-CSharp
-        m_MethodName: RestartGame
+      - m_Target: {fileID: 1207733878}
+        m_TargetAssemblyTypeName: MenuController, Assembly-CSharp
+        m_MethodName: QuitGame
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1056,7 +1056,7 @@ GameObject:
   - component: {fileID: 1864361749}
   - component: {fileID: 1864361751}
   m_Layer: 5
-  m_Name: Play
+  m_Name: Back to menu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1222,9 +1222,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1207733878}
-        m_TargetAssemblyTypeName: MenuController, Assembly-CSharp
-        m_MethodName: BackToMenu
+      - m_Target: {fileID: 1207733879}
+        m_TargetAssemblyTypeName: VictoryScreen, Assembly-CSharp
+        m_MethodName: RestartGame
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
