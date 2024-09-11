@@ -12,7 +12,7 @@ public class VictoryScreen : MonoBehaviour
         if (scoreText != null)
         {
             int score = ScoreManager.instance.GetScore();
-            scoreText.text = "Final Score: " + score.ToString();
+            scoreText.text = "Final Score: " + score.ToString() + "/1500";
         }
 
         // Unlock the cursor

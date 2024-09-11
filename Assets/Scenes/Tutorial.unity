@@ -3449,7 +3449,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3192413033948688475}
-  - component: {fileID: 4581288928438422547}
   m_Layer: 0
   m_Name: Door
   m_TagString: Untagged
@@ -3473,27 +3472,6 @@ Transform:
   - {fileID: 6743547641730079515}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!95 &4581288928438422547
-Animator:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1323399950771030581}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: f6cc0324b94476345ac86f01f954b196, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!4 &5361177890710904049 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5190231178510475964, guid: f6837f6101c0344449e393e4e35d5f99, type: 3}
@@ -3681,9 +3659,25 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3249617698551002111, guid: c9e1dd39ae1225a4994c5b163fce464c, type: 3}
+      propertyPath: pushForce
+      value: 0.2
+      objectReference: {fileID: 0}
     - target: {fileID: 3880617773513746904, guid: c9e1dd39ae1225a4994c5b163fce464c, type: 3}
       propertyPath: m_Name
       value: Cube
+      objectReference: {fileID: 0}
+    - target: {fileID: 8170292269583659256, guid: c9e1dd39ae1225a4994c5b163fce464c, type: 3}
+      propertyPath: m_Drag
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8170292269583659256, guid: c9e1dd39ae1225a4994c5b163fce464c, type: 3}
+      propertyPath: m_Mass
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 8170292269583659256, guid: c9e1dd39ae1225a4994c5b163fce464c, type: 3}
+      propertyPath: m_UseGravity
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
